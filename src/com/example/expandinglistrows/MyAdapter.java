@@ -21,7 +21,7 @@ public class MyAdapter extends BaseAdapter {
 	
 	private final Context context;
 	
-	List<ListItem> aList = Collections.emptyList();
+	private List<ListItem> aList = Collections.emptyList();
 	
 	private int firstVisibleItem = 0;
 	
@@ -59,7 +59,7 @@ public class MyAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		
-		ListItem item = aList.get(position);
+		final ListItem item = aList.get(position);
 		
 		LayoutInflater inflater = LayoutInflater.from(context);
 		
@@ -68,7 +68,7 @@ public class MyAdapter extends BaseAdapter {
 	    }
 	    
 	    RelativeLayout container = (RelativeLayout) convertView.findViewById(R.id.list_item_container);
-	    ImageView imageView = (ImageView) convertView.findViewById(R.id.list_item_image);
+	    final ImageView imageView = (ImageView) convertView.findViewById(R.id.list_item_image);
 	    
 	    // Image bitmap
 	    if (item.getBitmap()!=null) {
@@ -80,10 +80,20 @@ public class MyAdapter extends BaseAdapter {
                     R.drawable.headerpic);
 		    //
 		    //
-		    
-		    Bitmap scaledBitmap = processImage(bitmap);
-		    item.setBitmap(scaledBitmap);
-			imageView.setImageBitmap(scaledBitmap);
+
+//		    Bitmap scaledBitmap = processImage(bitmap);
+//		    item.setBitmap(scaledBitmap);
+//			imageView.setImageBitmap(scaledBitmap);
+		    ScaleBitmapAsyncTask scaleBitmapAsyncTask = new ScaleBitmapAsyncTask(context);
+		    scaleBitmapAsyncTask.setScaleBitmapAsyncTaskListener(
+		    		new ScaleBitmapAsyncTask.ScaleBitmapAsyncTaskListener() {
+				@Override
+				public void returnBitmap(Bitmap scaledBitmap) {
+				    item.setBitmap(scaledBitmap);
+					imageView.setImageBitmap(scaledBitmap);
+				}
+			});
+		    scaleBitmapAsyncTask.execute(bitmap);
 	    }
 
 		// Set row heights
@@ -99,7 +109,7 @@ public class MyAdapter extends BaseAdapter {
 	    if (container.getHeight()!=height) {
 	    	ResizeAnimation animation = new ResizeAnimation(
 	    			container, height);
-			animation.setDuration(300);
+			animation.setDuration(500);
 			container.startAnimation(animation);
 	    }
 		
